@@ -1,0 +1,104 @@
+---
+title: "Trees"
+author: "Mandy Langlois"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+library(lubridate)
+```
+
+```{r}
+data= read_csv(here::here("RDS-2016-0005-2","Data", "TS3_Raw_tree_data.csv"))
+
+```
+
+```{r}
+head(data)
+```
+
+# \[:alpha:\] - all alphabetic characters (A-Z, a-z, and locale-specific letters)
+
+#  \[:lower:\] - lowercase letters
+
+#  \[:upper:\] - uppercase letters
+
+#  \[:digit:\] - digits 0-9
+
+#  \[:space:\] - whitespace (spaces, tabs, etc.)
+
+#  \[:alnum:\] - Alphabetic and numeric characters
+
+#  \[:punct:\] - Punctuation
+
+```{r}
+city_state= str_match(data$City, "^([^,]+),[[:space:]]*([[:alpha:]]{2})$")
+head(data)
+```
+
+```{r}
+data[,c ("City","State")] = str_match(data$City, "^([^,]+),[[:space:]]*([[:alpha:]]{2})$")[,2:3]
+
+
+
+head(data)
+
+```
+
+Determining how many records are in each State for Q1. This table is arranged in descending order to show the sate with the largest sample size.
+
+```{r}
+State_count = data |>
+  group_by(State) |>
+  summarize(record_count = n()) |>
+  arrange(desc(record_count))
+
+head(State_count)
+```
+
+```{r}
+data_NC_SC = data |>
+  filter(State == "NC" | State == "SC" )
+
+  
+```
+
+```{r}
+Cities = unique(data_NC_SC$City)
+head(Cities)
+  
+
+
+```
+
+```{r}
+data_NC_SC = data_NC_SC |>
+  mutate(Genus = str_extract(ScientificName, "^[[:alpha:]]+"))
+```
+
+```{r}
+genus_avg <- data_NC_SC |>
+  group_by(Genus) |>
+  summarize(Average_Crown_Diameter = mean(`AvgCdia (m)`, na.rm = T)) |>
+  arrange(desc(Average_Crown_Diameter))
+
+largest_crown_genus = genus_avg |>
+  head(1)
+
+head(largest_crown_genus)
+```
+
+**Final Write up**
+
+Q1. According to the table above CA has 4062 records, WA has 994 records, ID has 923 records, HI has 918 records, FL has 895, and IN has 877 records.
+
+Q.2 They collected data from Charlotte,NC and Charleston, SC.
+
+Q3. Quercus has the largest crown diameter in North and South Carolina with crown size of 13.6 (m).
+
+|     |     |
+|:----|----:|
+|     |     |
